@@ -1,9 +1,0 @@
-{
-  "cmake.configureOnOpen": false,
-  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "cmake.generator": "Visual Studio 17 2022",
-  "cmake.preferredGenerators": [
-    "Ninja",
-    "Visual Studio 17 2022"
-  ]
-}
