@@ -7,7 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
 
 # Library
-add_library(sdl3_engine src/engine/main_app.cpp)
+add_library(sdl3_engine
+  ${PROJECT_SOURCE_DIR}/public/engine/main_app.h
+  ${PROJECT_SOURCE_DIR}/src/engine/main_app.cpp
+)
 
 target_include_directories(sdl3_engine
   PUBLIC
@@ -18,14 +21,16 @@ target_include_directories(sdl3_engine
 
 # Find SDL3 once
 if(TARGET CONAN_PKG::sdl)
-  target_link_libraries(sdl3_engine PRIVATE CONAN_PKG::sdl)
+  target_link_libraries(sdl3_engine PUBLIC CONAN_PKG::sdl)
 else()
   find_package(SDL3 CONFIG REQUIRED)
-  target_link_libraries(sdl3_engine PRIVATE SDL3::SDL3)
+  target_link_libraries(sdl3_engine PUBLIC SDL3::SDL3)
 endif()
 
 # Executable
-add_executable(sdl3_tutorial src/main.cpp)
+add_executable(sdl3_tutorial
+  ${PROJECT_SOURCE_DIR}/src/main.cpp
+)
 
 target_include_directories(sdl3_tutorial
   PRIVATE

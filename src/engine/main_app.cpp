@@ -1,7 +1,5 @@
 #include "engine/main_app.h"
 
-#include <SDL3/SDL.h>
-
 namespace AuroraEngine
 {
 
@@ -26,13 +24,13 @@ MainApp::~MainApp()
 
 MainApp::Error MainApp::initialize()
 {
-    SDL_Window* window = SDL_CreateWindow(
+    m_sdl_state.window = SDL_CreateWindow(
         m_windowTitle.data(),
         m_windowSize.x,
         m_windowSize.y,
         0);
 
-    if (!window)
+    if (!m_sdl_state.window)
     {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                                  "Error",
@@ -55,6 +53,9 @@ MainApp::Error MainApp::run()
     bool running = true;
     while (running)
     {
+        std::int64_t start_time = 0;
+        SDL_GetCurrentTime(&start_time);
+
         SDL_Event event{ 0 };
         while (SDL_PollEvent(&event))
         {
@@ -65,7 +66,12 @@ MainApp::Error MainApp::run()
                     break;
             }
         }
-        SDL_Delay(16); // Simulate ~60 FPS
+        
+        SDL_DelayPrecise(6'900'000); // Approx ~144 FPS
+
+        std::int64_t end_time = 0;
+        SDL_GetCurrentTime(&end_time);
+        printf("Frame Time: %f ns\n", 1.0 / (static_cast<double>(end_time - start_time) / 1'000'000'000.0));
     }
 
     return m_last_error;
@@ -73,6 +79,11 @@ MainApp::Error MainApp::run()
 
 MainApp::Error MainApp::cleanup()
 {
+    if (m_sdl_state.window)
+    {
+        SDL_DestroyWindow(m_sdl_state.window);
+        m_sdl_state.window = nullptr;
+    }
     SDL_Quit();
     return Error::None;
 }
