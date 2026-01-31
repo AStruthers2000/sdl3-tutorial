@@ -64,6 +64,7 @@ ipch/
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+CMakeUserPresets.json
 
 # IDEs
 .idea/
