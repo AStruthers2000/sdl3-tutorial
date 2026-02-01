@@ -5,15 +5,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find external dependencies
-find_package(SDL3 REQUIRED)
-find_package(SDL3_image REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(SDL3 CONFIG REQUIRED)
+find_package(SDL3_image CONFIG REQUIRED)
 
 enable_testing()
 
 # Library
 add_library(sdl3_engine
-  ${PROJECT_SOURCE_DIR}/public/engine/main_app.h
+  ${PROJECT_SOURCE_DIR}/src/engine/animation.cpp
   ${PROJECT_SOURCE_DIR}/src/engine/main_app.cpp
+  ${PROJECT_SOURCE_DIR}/src/engine/timer.cpp
 )
 
 target_include_directories(sdl3_engine
@@ -24,7 +26,7 @@ target_include_directories(sdl3_engine
 )
 
 # Link dependencies to engine
-target_link_libraries(sdl3_engine PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
+target_link_libraries(sdl3_engine PUBLIC glm::glm SDL3::SDL3 SDL3_image::SDL3_image)
 
 # Executable
 add_executable(sdl3_tutorial

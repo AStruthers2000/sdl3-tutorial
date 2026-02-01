@@ -1,6 +1,7 @@
 #include "engine/main_app.h"
 
 #include <SDL3_image/SDL_image.h>
+#include <glm/glm.hpp>
 
 namespace AuroraEngine
 {
@@ -23,6 +24,7 @@ MainApp::MainApp(Vector2<int> windowSize, Vector2<int> logicalSize, std::string_
 
 MainApp::~MainApp()
 {
+    m_resources.unload();
     cleanup();
 }
 
@@ -61,9 +63,8 @@ MainApp::Error MainApp::initialize()
                                      m_sdl_state.logical_size.y,
                                      SDL_RendererLogicalPresentation::SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
-    load_assets();
-    
     m_sdl_state.keyboard_state = SDL_GetKeyboardState(nullptr);
+    m_resources.load(m_sdl_state);
 
     return m_last_error;
 }
@@ -75,52 +76,29 @@ MainApp::Error MainApp::run()
         return m_last_error;
     }
 
-    // main game loop
-    bool running = true;
+    // Player state
     Vector2<float> player_position{0.f, 0.f};
     Vector2<float> floor_size{
         static_cast<float>(m_sdl_state.logical_size.x),
         static_cast<float>(m_sdl_state.logical_size.y)
     };
     bool flip_horizontal = false;
+
+    // Main game loop
+    bool running = true;
     std::uint64_t previous_frame_time = SDL_GetTicks();
     while (running)
     {
-        // std::int64_t start_time = 0;
-        // SDL_GetCurrentTime(&start_time);
-
         std::uint64_t frame_start_time = SDL_GetTicks();
         float delta_time = static_cast<float>(frame_start_time - previous_frame_time) / 1'000.0f;
         
         handle_events(running, delta_time, player_position, flip_horizontal);
         render_frame(player_position, flip_horizontal);
         
-        // SDL_DelayPrecise(6'900'000); // Approx ~144 FPS
-
-        // std::int64_t end_time = 0;
-        // SDL_GetCurrentTime(&end_time);
-        // printf("Frame Time: %f ns\n", 1.0 / (static_cast<double>(end_time - start_time) / 1'000'000'000.0));
         previous_frame_time = frame_start_time;
     }
 
-    for (SDL_Texture* texture : m_sdl_state.loaded_textures)
-    {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
-    }
-
     return m_last_error;
-}
-
-void MainApp::load_assets()
-{
-    SDL_Texture* idle_tex = IMG_LoadTexture(m_sdl_state.renderer, "data/GraveRobber_idle.png");
-
-    if (idle_tex)
-    {
-        SDL_SetTextureScaleMode(idle_tex, SDL_ScaleMode::SDL_SCALEMODE_NEAREST);
-        m_sdl_state.loaded_textures.push_back(idle_tex);
-    }
 }
 
 void MainApp::handle_events(bool& running, float delta_time, Vector2<float>& player_position, bool& flip_horizontal)
@@ -176,7 +154,7 @@ void MainApp::render_frame(Vector2<float> player_position, bool flip_horizontal)
     };
     // SDL_RenderTexture(m_sdl_state.renderer, m_sdl_state.loaded_textures[0], &src, &dst);
     SDL_RenderTextureRotated(m_sdl_state.renderer,
-                             m_sdl_state.loaded_textures[0],
+                             m_resources.idle_texture,
                              &src,
                              &dst,
                              0,

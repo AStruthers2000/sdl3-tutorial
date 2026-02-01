@@ -7,6 +7,8 @@ class SDL3LearningConan(ConanFile):
     generators = "CMakeToolchain", "CMakeDeps"
 
     def requirements(self):
+        # GLM math library
+        self.requires("glm/1.0.1")
         # SDL3 for graphics and window management
         self.requires("sdl/3.4.0")
         self.requires("sdl_image/3.4.0")

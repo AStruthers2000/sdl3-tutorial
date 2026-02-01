@@ -3,6 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief The main application class for the Aurora Engine.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifndef ENGINE_MAIN_APP_H
+#define ENGINE_MAIN_APP_H
+
+#include "animation.h"
 #include "types.h"
 
 #include <SDL3/SDL.h>
@@ -22,7 +26,46 @@ struct SDLState
     Vector2<int> window_size{};
     Vector2<int> logical_size{};
     const bool* keyboard_state = nullptr;
-    std::vector<SDL_Texture*> loaded_textures;
+    // std::vector<SDL_Texture*> loaded_textures;
+};
+
+struct Resources
+{
+    constexpr static int ANIM_PLAYER_IDLE = 0;
+
+    std::vector<Animation> player_animations;
+    std::vector<SDL_Texture*> textures;
+    SDL_Texture* idle_texture = nullptr;
+
+    SDL_Texture* load_texture(SDL_Renderer* renderer, std::string_view file_path)
+    {
+        SDL_Texture* tex = IMG_LoadTexture(renderer, file_path.data());
+
+        if (tex)
+        {
+            SDL_SetTextureScaleMode(tex, SDL_ScaleMode::SDL_SCALEMODE_NEAREST);
+            textures.push_back(tex);
+        }
+
+        return tex;
+    }
+
+    void load(SDLState& sdl_state)
+    {
+        player_animations.resize(5);
+        player_animations[ANIM_PLAYER_IDLE] = Animation(4, 0.4f);
+
+        idle_texture = load_texture(sdl_state.renderer, "data/GraveRobber_idle.png");
+    }
+
+    void unload()
+    {
+        for (SDL_Texture* tex : textures)
+        {
+            SDL_DestroyTexture(tex);
+        }
+        textures.clear();
+    }
 };
 
 /// @brief The main application class for the Aurora Engine.
@@ -60,7 +103,6 @@ public:
     Error check_error() const { return m_last_error; }
 
 private:
-    void load_assets();
     void handle_events(bool& running, float delta_time,Vector2<float>& player_position, bool& flip_horizontal);
     void render_frame(Vector2<float> player_position, bool flip_horizontal);
 
@@ -70,6 +112,9 @@ private:
 
     /// @brief Holds the SDL state for the application.
     SDLState m_sdl_state{};
+
+    /// @brief Manages game resources such as textures and animations.
+    Resources m_resources{};
 
     // /// @brief The size of the application window.
     // Vector2<int> m_windowSize;
@@ -82,3 +127,5 @@ private:
 };
 
 } // namespace AuroraEngine
+
+#endif // ENGINE_MAIN_APP_H
