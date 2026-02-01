@@ -61,8 +61,8 @@ public:
 
 private:
     void load_assets();
-    void handle_events(bool& running, Vector2<float>& player_position);
-    void render_frame(Vector2<float> player_position);
+    void handle_events(bool& running, float delta_time,Vector2<float>& player_position, bool& flip_horizontal);
+    void render_frame(Vector2<float> player_position, bool flip_horizontal);
 
     /// @brief Cleans up SDL resources and shuts down SDL.
     /// @return An Error enum indicating success or failure of cleanup.

@@ -82,19 +82,25 @@ MainApp::Error MainApp::run()
         static_cast<float>(m_sdl_state.logical_size.x),
         static_cast<float>(m_sdl_state.logical_size.y)
     };
+    bool flip_horizontal = false;
+    std::uint64_t previous_frame_time = SDL_GetTicks();
     while (running)
     {
         // std::int64_t start_time = 0;
         // SDL_GetCurrentTime(&start_time);
+
+        std::uint64_t frame_start_time = SDL_GetTicks();
+        float delta_time = static_cast<float>(frame_start_time - previous_frame_time) / 1'000.0f;
         
-        handle_events(running, player_position);
-        render_frame(player_position);
+        handle_events(running, delta_time, player_position, flip_horizontal);
+        render_frame(player_position, flip_horizontal);
         
         // SDL_DelayPrecise(6'900'000); // Approx ~144 FPS
 
         // std::int64_t end_time = 0;
         // SDL_GetCurrentTime(&end_time);
         // printf("Frame Time: %f ns\n", 1.0 / (static_cast<double>(end_time - start_time) / 1'000'000'000.0));
+        previous_frame_time = frame_start_time;
     }
 
     for (SDL_Texture* texture : m_sdl_state.loaded_textures)
@@ -117,7 +123,7 @@ void MainApp::load_assets()
     }
 }
 
-void MainApp::handle_events(bool& running, Vector2<float>& player_position)
+void MainApp::handle_events(bool& running, float delta_time, Vector2<float>& player_position, bool& flip_horizontal)
 {
     SDL_Event event{ 0 };
     while (SDL_PollEvent(&event))
@@ -137,18 +143,20 @@ void MainApp::handle_events(bool& running, Vector2<float>& player_position)
     float move_amount = 0;
     if (m_sdl_state.keyboard_state[SDL_SCANCODE_RIGHT])
     {
-        move_amount += 0.05f;
+        move_amount += 75.f * delta_time;
+        flip_horizontal = false;
     }
     
     if (m_sdl_state.keyboard_state[SDL_SCANCODE_LEFT])
     {
-        move_amount += -0.05f;
+        move_amount += -75.f * delta_time;
+        flip_horizontal = true;
     }
 
     player_position.x += move_amount;
 }
 
-void MainApp::render_frame(Vector2<float> player_position)
+void MainApp::render_frame(Vector2<float> player_position, bool flip_horizontal)
 {
     // Perform rendering
     SDL_SetRenderDrawColor(m_sdl_state.renderer, 20, 10, 30, 255);
@@ -166,7 +174,14 @@ void MainApp::render_frame(Vector2<float> player_position)
         .w = src.w,
         .h = src.h,
     };
-    SDL_RenderTexture(m_sdl_state.renderer, m_sdl_state.loaded_textures[0], &src, &dst);
+    // SDL_RenderTexture(m_sdl_state.renderer, m_sdl_state.loaded_textures[0], &src, &dst);
+    SDL_RenderTextureRotated(m_sdl_state.renderer,
+                             m_sdl_state.loaded_textures[0],
+                             &src,
+                             &dst,
+                             0,
+                             nullptr,
+                             flip_horizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 
     // Swap buffers and present
     SDL_RenderPresent(m_sdl_state.renderer);
