@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    AuroraEngine::MainApp app({800, 600}, "Aurora Engine Tutorial");
+    AuroraEngine::MainApp app({1920, 1080}, {640, 320}, "Aurora Engine Tutorial");
     AuroraEngine::MainApp::Error init_error = app.initialize();
 
     if (init_error != AuroraEngine::MainApp::Error::None)

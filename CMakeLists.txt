@@ -4,6 +4,10 @@ project(sdl3-tutorial LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Find external dependencies
+find_package(SDL3 REQUIRED)
+find_package(SDL3_image REQUIRED)
+
 enable_testing()
 
 # Library
@@ -19,13 +23,8 @@ target_include_directories(sdl3_engine
     ${PROJECT_SOURCE_DIR}/src
 )
 
-# Find SDL3 once
-if(TARGET CONAN_PKG::sdl)
-  target_link_libraries(sdl3_engine PUBLIC CONAN_PKG::sdl)
-else()
-  find_package(SDL3 CONFIG REQUIRED)
-  target_link_libraries(sdl3_engine PUBLIC SDL3::SDL3)
-endif()
+# Link dependencies to engine
+target_link_libraries(sdl3_engine PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
 
 # Executable
 add_executable(sdl3_tutorial

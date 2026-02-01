@@ -6,7 +6,10 @@
 #include "types.h"
 
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+
 #include <string_view>
+#include <vector>
 
 namespace AuroraEngine
 {
@@ -16,6 +19,10 @@ struct SDLState
 {
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
+    Vector2<int> window_size{};
+    Vector2<int> logical_size{};
+    const bool* keyboard_state = nullptr;
+    std::vector<SDL_Texture*> loaded_textures;
 };
 
 /// @brief The main application class for the Aurora Engine.
@@ -28,13 +35,14 @@ public:
         None,
         SDLInitFailed,
         WindowCreationFailed,
+        RendererCreationFailed,
         SDLDestroyFailed,
     };
 
     /// @brief Constructs the main application with the specified window size and title.
     /// @param windowSize The size of the application window.
     /// @param windowTitle The title of the application window.
-    MainApp(Vector2<int> windowSize, std::string_view windowTitle);
+    MainApp(Vector2<int> windowSize, Vector2<int> logicalSize, std::string_view windowTitle);
 
     /// @brief Destructor for MainApp. Cleans up resources and quits SDL safely.
     ~MainApp();
@@ -52,6 +60,10 @@ public:
     Error check_error() const { return m_last_error; }
 
 private:
+    void load_assets();
+    void handle_events(bool& running, Vector2<float>& player_position);
+    void render_frame(Vector2<float> player_position);
+
     /// @brief Cleans up SDL resources and shuts down SDL.
     /// @return An Error enum indicating success or failure of cleanup.
     Error cleanup();
@@ -59,8 +71,8 @@ private:
     /// @brief Holds the SDL state for the application.
     SDLState m_sdl_state{};
 
-    /// @brief The size of the application window.
-    Vector2<int> m_windowSize;
+    // /// @brief The size of the application window.
+    // Vector2<int> m_windowSize;
 
     /// @brief The title of the application window.
     std::string_view m_windowTitle;
