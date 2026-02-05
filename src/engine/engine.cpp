@@ -1,5 +1,7 @@
 #include "engine/engine.h"
 
+#include "engine/world.h"
+
 namespace AuroraEngine
 {
 
@@ -22,12 +24,25 @@ AuroraEngine::AuroraEngine(glm::vec2 window_size, glm::vec2 logical_size, std::s
 //--------------------------------------------------------------------------------------------------
 AuroraEngine::~AuroraEngine()
 {
+    m_managed_world->cleanup();
+    m_managed_world.reset();
     cleanup();
 }
 
 //--------------------------------------------------------------------------------------------------
-void AuroraEngine::initialize()
+void AuroraEngine::initialize(std::unique_ptr<GameWorld> managed_world)
 {
+    if (managed_world == nullptr)
+    {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Error",
+                                 "Can't initialize engine with invalid world; please create a valid world instance.",
+                                 nullptr);
+        return;
+    }
+
+    m_managed_world = std::move(managed_world);
+
     // Create the SDL window
     m_sdl_state.window = SDL_CreateWindow(m_window_title.data(),
                                           m_sdl_state.window_size.x,
@@ -114,7 +129,7 @@ bool AuroraEngine::process_input()
 //--------------------------------------------------------------------------------------------------
 void AuroraEngine::update(float delta_time)
 {
-
+    m_managed_world->update(delta_time);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,6 +139,7 @@ void AuroraEngine::render()
     SDL_RenderClear(m_sdl_state.renderer);
 
     // Perform all rendering
+    m_managed_world->render(m_sdl_state.renderer);
 
     // Swap buffers and present
     SDL_RenderPresent(m_sdl_state.renderer);

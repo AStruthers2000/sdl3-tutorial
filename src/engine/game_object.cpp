@@ -3,4 +3,10 @@
 namespace AuroraEngine
 {
 
+//--------------------------------------------------------------------------------------------------
+void GameObject::render(SDL_Renderer* renderer)
+{
+
+}
+
 } // namespace AuroraEngine

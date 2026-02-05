@@ -32,6 +32,8 @@ public:
     }
     ~GameObject() = default;
 
+    virtual void update(float delta_time) = 0;
+    void render(SDL_Renderer* renderer);
 
 private:
     GameObjectType m_type;
