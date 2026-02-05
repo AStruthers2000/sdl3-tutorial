@@ -14,6 +14,7 @@ enable_testing()
 # Library
 add_library(sdl3_engine
   ${PROJECT_SOURCE_DIR}/src/engine/animation.cpp
+  ${PROJECT_SOURCE_DIR}/src/engine/game_object.cpp
   ${PROJECT_SOURCE_DIR}/src/engine/main_app.cpp
   ${PROJECT_SOURCE_DIR}/src/engine/timer.cpp
 )

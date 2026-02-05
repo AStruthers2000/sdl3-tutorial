@@ -6,9 +6,9 @@
 #ifndef ENGINE_MAIN_APP_H
 #define ENGINE_MAIN_APP_H
 
-#include "animation.h"
-#include "types.h"
+#include "engine/game_object.h"
 
+#include <glm/glm.hpp>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
@@ -23,8 +23,8 @@ struct SDLState
 {
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
-    Vector2<int> window_size{};
-    Vector2<int> logical_size{};
+    glm::vec2 window_size{};
+    glm::vec2 logical_size{};
     const bool* keyboard_state = nullptr;
     // std::vector<SDL_Texture*> loaded_textures;
 };
@@ -85,7 +85,7 @@ public:
     /// @brief Constructs the main application with the specified window size and title.
     /// @param windowSize The size of the application window.
     /// @param windowTitle The title of the application window.
-    MainApp(Vector2<int> windowSize, Vector2<int> logicalSize, std::string_view windowTitle);
+    MainApp(glm::vec2 windowSize, glm::vec2 logicalSize, std::string_view windowTitle);
 
     /// @brief Destructor for MainApp. Cleans up resources and quits SDL safely.
     ~MainApp();
@@ -103,8 +103,8 @@ public:
     Error check_error() const { return m_last_error; }
 
 private:
-    void handle_events(bool& running, float delta_time,Vector2<float>& player_position, bool& flip_horizontal);
-    void render_frame(Vector2<float> player_position, bool flip_horizontal);
+    void handle_events(bool& running, float delta_time, glm::vec2& player_position, bool& flip_horizontal);
+    void render_frame(glm::vec2 player_position, bool flip_horizontal);
 
     /// @brief Cleans up SDL resources and shuts down SDL.
     /// @return An Error enum indicating success or failure of cleanup.

@@ -1,12 +1,9 @@
 #include "engine/main_app.h"
 
-#include <SDL3_image/SDL_image.h>
-#include <glm/glm.hpp>
-
 namespace AuroraEngine
 {
 
-MainApp::MainApp(Vector2<int> windowSize, Vector2<int> logicalSize, std::string_view windowTitle)
+MainApp::MainApp(glm::vec2 windowSize, glm::vec2 logicalSize, std::string_view windowTitle)
     : m_windowTitle(windowTitle)
 {
     if (!SDL_Init(SDL_INIT_VIDEO))
@@ -77,8 +74,8 @@ MainApp::Error MainApp::run()
     }
 
     // Player state
-    Vector2<float> player_position{0.f, 0.f};
-    Vector2<float> floor_size{
+    glm::vec2 player_position{0.f, 0.f};
+    glm::vec2 floor_size{
         static_cast<float>(m_sdl_state.logical_size.x),
         static_cast<float>(m_sdl_state.logical_size.y)
     };
@@ -101,7 +98,7 @@ MainApp::Error MainApp::run()
     return m_last_error;
 }
 
-void MainApp::handle_events(bool& running, float delta_time, Vector2<float>& player_position, bool& flip_horizontal)
+void MainApp::handle_events(bool& running, float delta_time, glm::vec2& player_position, bool& flip_horizontal)
 {
     SDL_Event event{ 0 };
     while (SDL_PollEvent(&event))
@@ -134,7 +131,7 @@ void MainApp::handle_events(bool& running, float delta_time, Vector2<float>& pla
     player_position.x += move_amount;
 }
 
-void MainApp::render_frame(Vector2<float> player_position, bool flip_horizontal)
+void MainApp::render_frame(glm::vec2 player_position, bool flip_horizontal)
 {
     // Perform rendering
     SDL_SetRenderDrawColor(m_sdl_state.renderer, 20, 10, 30, 255);
