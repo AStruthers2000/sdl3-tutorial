@@ -9,6 +9,7 @@
 // #include "engine/animation.h"
 // #include "engine/engine.h"
 #include "engine/engine_types.h"
+#include "engine/world.h"
 #include "engine/components/transform_component.h"
 
 #include <SDL3/SDL.h>
@@ -25,11 +26,13 @@ namespace AuroraEngine
 //     Level,
 // };
 
+// class GameWorld;
+
 class GameObject
 {
 public:
-    GameObject();
-    GameObject(TransformComponent const& initial_transform);
+    GameObject(GameWorld& owning_world);
+    GameObject(GameWorld& owning_world, TransformComponent const& initial_transform);
 
     virtual ~GameObject() = default;
 
@@ -38,10 +41,12 @@ public:
     virtual void render(SDL_Renderer* renderer) = 0;
     virtual void cleanup() = 0;
 
-    TransformComponent const& get_transform() const { return m_transform; }
-
+    TransformComponent& get_transform() { return m_transform; }
+    GameWorld& get_world() { return m_world; }
+    
 private:
     // GameObjectType m_type;
+    GameWorld& m_world;
     TransformComponent m_transform;
 
     // Rendering stuff

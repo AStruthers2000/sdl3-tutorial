@@ -112,6 +112,18 @@ void MainApp::handle_events(bool& running, float delta_time, glm::vec2& player_p
                 m_sdl_state.window_size.x = event.window.data1;
                 m_sdl_state.window_size.y = event.window.data2;
                 break;
+            case SDL_EventType::SDL_EVENT_KEY_UP:
+                switch (event.key.scancode)
+                {
+                    case SDL_Scancode::SDL_SCANCODE_A:
+                        printf("A");
+                        break;
+                    case SDL_Scancode::SDL_SCANCODE_B:
+                        printf("B");
+                        break;
+                    default:
+                        break;
+                }
         }
     }
 

@@ -14,10 +14,11 @@ namespace TestGame
 class Player : public AuroraEngine::GameObject
 {
 public:
-    Player() : GameObject()
+    Player(AuroraEngine::GameWorld& owning_world) : GameObject(owning_world)
     {}
 
-    Player(AuroraEngine::TransformComponent const& transform) : GameObject(transform)
+    Player(AuroraEngine::GameWorld& owning_world, AuroraEngine::TransformComponent const& transform) 
+        : GameObject(owning_world, transform)
     {}
 
     ~Player()
@@ -32,6 +33,9 @@ public:
 
 private:
     SDL_Texture* m_texture;
+
+    int direction = 0;
+    float speed = 100.f;
 };
 
 } // namespace TestGame

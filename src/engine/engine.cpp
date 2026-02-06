@@ -114,6 +114,7 @@ bool AuroraEngine::process_input()
     SDL_Event event{ 0 };
     while (SDL_PollEvent(&event))
     {
+        EKeyPressedState key_pressed_state = EKeyPressedState::NONE;
         switch (event.type)
         {
             case SDL_EventType::SDL_EVENT_QUIT:
@@ -122,6 +123,22 @@ bool AuroraEngine::process_input()
                 m_sdl_state.window_size.x = event.window.data1;
                 m_sdl_state.window_size.y = event.window.data2;
                 break;
+            case SDL_EventType::SDL_EVENT_KEY_UP:
+                key_pressed_state = EKeyPressedState::KEY_UP;
+                break;
+            case SDL_EventType::SDL_EVENT_KEY_DOWN:
+                key_pressed_state = EKeyPressedState::KEY_DOWN;
+                break;
+        }
+
+        if (key_pressed_state != EKeyPressedState::NONE)
+        {
+            SDL_Scancode code = event.key.scancode;
+            KeyPress key_press{
+                .key_state = key_pressed_state,
+                .key_code = code,
+            };
+            m_input_subsystem.handle_event(key_press);
         }
     }
 

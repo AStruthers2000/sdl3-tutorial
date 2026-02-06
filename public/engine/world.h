@@ -29,7 +29,7 @@ public:
     void initialize(SDLState const& sdl_state);
     void cleanup();
 
-    AuroraEngine const& get_engine() const { return m_engine; }
+    AuroraEngine& get_engine() { return m_engine; }
     bool add_object(std::unique_ptr<GameObject> object, int update_order);
 
     void update(float delta_time);
