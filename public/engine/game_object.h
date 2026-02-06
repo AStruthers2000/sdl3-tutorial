@@ -6,7 +6,9 @@
 #ifndef ENGINE_GAME_OBJECT_H
 #define ENGINE_GAME_OBJECT_H
 
-#include "engine/animation.h"
+// #include "engine/animation.h"
+// #include "engine/engine.h"
+#include "engine/engine_types.h"
 #include "engine/components/transform_component.h"
 
 #include <SDL3/SDL.h>
@@ -16,33 +18,36 @@
 
 namespace AuroraEngine
 {
-enum class GameObjectType : std::uint8_t
-{
-    Player,
-    Enemy,
-    Level,
-};
+// enum class GameObjectType : std::uint8_t
+// {
+//     Player,
+//     Enemy,
+//     Level,
+// };
 
 class GameObject
 {
 public:
-    GameObject(GameObjectType type, const TransformComponent& transform)
-        : m_type(type), m_transform(transform)
-    {
-    }
-    ~GameObject() = default;
+    GameObject();
+    GameObject(TransformComponent const& initial_transform);
 
+    virtual ~GameObject() = default;
+
+    virtual void initialize(SDLState const& sdl_state) = 0;
     virtual void update(float delta_time) = 0;
-    void render(SDL_Renderer* renderer);
+    virtual void render(SDL_Renderer* renderer) = 0;
+    virtual void cleanup() = 0;
+
+    TransformComponent const& get_transform() const { return m_transform; }
 
 private:
-    GameObjectType m_type;
+    // GameObjectType m_type;
     TransformComponent m_transform;
 
     // Rendering stuff
-    SDL_Texture* m_texture{ nullptr };
-    std::vector<Animation> m_animations{};
-    int m_current_animation{ -1 };
+    // SDL_Texture* m_texture{ nullptr };
+    // std::vector<Animation> m_animations{};
+    // int m_current_animation{ -1 };
 };
 
 }

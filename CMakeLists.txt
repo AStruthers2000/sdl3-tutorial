@@ -34,6 +34,8 @@ target_link_libraries(sdl3_engine PUBLIC glm::glm SDL3::SDL3 SDL3_image::SDL3_im
 # Executable
 add_executable(sdl3_tutorial
   ${PROJECT_SOURCE_DIR}/src/main.cpp
+
+  ${PROJECT_SOURCE_DIR}/src/game/player.cpp
 )
 
 target_include_directories(sdl3_tutorial

@@ -6,6 +6,8 @@
 #ifndef ENGINE_GAMEWORLD_H
 #define ENGINE_GAMEWORLD_H
 
+#include "engine/engine_types.h"
+
 #include <SDL3/SDL.h>
 
 #include <list>
@@ -23,6 +25,8 @@ class GameWorld
 public:
     GameWorld(AuroraEngine& owning_engine);
     ~GameWorld();
+
+    void initialize(SDLState const& sdl_state);
     void cleanup();
 
     AuroraEngine const& get_engine() const { return m_engine; }

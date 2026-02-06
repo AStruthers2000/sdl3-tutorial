@@ -19,9 +19,21 @@ GameWorld::GameWorld(AuroraEngine& owning_engine)
 GameWorld::~GameWorld() = default;
 
 //--------------------------------------------------------------------------------------------------
+void GameWorld::initialize(SDLState const& sdl_state)
+{
+    for (auto& [_, game_object] : m_game_objects)
+    {
+        game_object->initialize(sdl_state);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 void GameWorld::cleanup()
 {
-
+    for (auto& [_, game_object] : m_game_objects)
+    {
+        game_object->cleanup();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

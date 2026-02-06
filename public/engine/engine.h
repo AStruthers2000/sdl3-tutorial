@@ -6,9 +6,7 @@
 #ifndef ENGINE_ENGINE_H
 #define ENGINE_ENGINE_H
 
-#include <glm/glm.hpp>
-#include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
+#include "engine/engine_types.h"
 
 #include <memory>
 #include <string_view>
@@ -28,14 +26,6 @@ public:
     void run();
 
 private:
-    struct SDLState
-    {
-        SDL_Window* window = nullptr;
-        SDL_Renderer* renderer = nullptr;
-        glm::vec2 window_size{};
-        glm::vec2 logical_size{};
-    };
-
     bool process_input();
     void update(float delta_time);
     void render();

@@ -72,6 +72,8 @@ void AuroraEngine::initialize(std::unique_ptr<GameWorld> managed_world)
                                      m_sdl_state.logical_size.x,
                                      m_sdl_state.logical_size.y,
                                      SDL_RendererLogicalPresentation::SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+    m_managed_world->initialize(m_sdl_state);
     
     m_initialized = true;
 }
@@ -148,6 +150,8 @@ void AuroraEngine::render()
 //--------------------------------------------------------------------------------------------------
 void AuroraEngine::cleanup()
 {
+    m_managed_world->cleanup();
+
     // Destroy renderer before destroying window
     if (m_sdl_state.renderer)
     {

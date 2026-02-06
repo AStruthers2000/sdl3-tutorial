@@ -3,8 +3,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Common type definitions for the Aurora Engine.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifndef ENGINE_TYPES_H
-#define ENGINE_TYPES_H
+#ifndef ENGINE_ENGINE_TYPES_H
+#define ENGINE_ENGINE_TYPES_H
+
+#include <glm/glm.hpp>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <string>
 #include <type_traits>
@@ -12,6 +16,14 @@
 namespace AuroraEngine
 {
 
+struct SDLState
+{
+    SDL_Window* window = nullptr;
+    SDL_Renderer* renderer = nullptr;
+    glm::vec2 window_size{};
+    glm::vec2 logical_size{};
+};
+
 } // namespace AuroraEngine
 
-#endif // ENGINE_TYPES_H
+#endif // ENGINE_ENGINE_TYPES_H
