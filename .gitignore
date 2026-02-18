@@ -91,3 +91,6 @@ CMakeUserPresets.json
 
 # Conan
 conan_provider.cmake
+
+# Notes
+/public/engine/subsystems/input/input_axis_notes.md

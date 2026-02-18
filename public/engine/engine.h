@@ -7,7 +7,7 @@
 #define ENGINE_ENGINE_H
 
 #include "engine/engine_types.h"
-#include "engine/subsystems/input_subsystem.h"
+#include "engine/subsystems/input/input_subsystem.h"
 
 #include <memory>
 #include <string_view>

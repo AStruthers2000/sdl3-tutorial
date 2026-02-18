@@ -93,8 +93,8 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //        [this]()
 //        {
 //            // this->direction = clamped_add(this->direction, -1, -1, 1);
-//            // printf("Held A for 1 second\n");
-//            this->direction -= 1;
+//            printf("Held A for 1 second\n");
+//            // this->direction -= 1;
 //        },
 //        AuroraEngine::InputActionArgs
 //        {
@@ -107,7 +107,7 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //        [this]()
 //        {
 //            // this->direction = clamped_add(this->direction, -1, -1, 1);
-//            // printf("Pressed A\n");
+//            // printf("Released A\n");
 //            this->direction += 1;
 //        }
 //    );
@@ -126,7 +126,7 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //        [this]()
 //        {
 //            // this->direction = 0;
-//            // printf("Held D for 0.5 seconds\n");
+//             printf("Held D for 0.5 seconds\n");
 //            this->direction += 1;
 //        },
 //        AuroraEngine::InputActionArgs
@@ -140,7 +140,7 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //        [this]()
 //        {
 //            // this->direction = 0;
-//            // printf("Held D for 0.5 seconds\n");
+//             printf("Released D\n");
 //            // this->direction -= 1;
 //        }
 //    );
@@ -157,18 +157,9 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
     AuroraEngine::AuroraEngine::get().get_input_subsystem().register_callback(
             AuroraEngine::InputAxis(AuroraEngine::InputAxis::Axis{SDL_Scancode::SDL_SCANCODE_D, SDL_Scancode::SDL_SCANCODE_A},
                                     AuroraEngine::InputAxis::Axis{SDL_Scancode::SDL_SCANCODE_W, SDL_Scancode::SDL_SCANCODE_S}),
-            [this](glm::vec4 axis)
+            [this](AuroraEngine::AxisState const& axis)
             {
-//                printf("[%2.3f, %2.3f, %2.3f, %2.3f]\n", axis[0], axis[1], axis[2], axis[3]);
-                float x_in = axis[0] - axis[1];
-                float y_in = axis[2] - axis[3];
-                move_vec = glm::normalize(glm::vec2{x_in, -y_in});
-                if (glm::isnan(move_vec) != glm::vec<2, bool>{false, false})
-                {
-                    move_vec = glm::vec2{0, 0};
-                }
-//                move_vec = glm::normalize(axis);
-//                get_transform().update_position()
+                move_vec = axis.get_normalized_screen_direction();
             });
 }
 
@@ -187,7 +178,7 @@ void Player::update(float delta_time)
     {
         glm::vec2 move_delta = move_vec * speed * delta_time;
         get_transform().update_position(move_delta);
-        move_vec = {0, 0};
+//        move_vec = {0, 0};
     }
 }
 

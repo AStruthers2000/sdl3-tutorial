@@ -1,28 +1,11 @@
-#include "engine/subsystems/input_subsystem.h"
+#include "engine/subsystems/input/input_subsystem.h"
 
 namespace AuroraEngine
 {
 
 //--------------------------------------------------------------------------------------------------
-void InputSubsystem::register_callback(InputAction const& input_action, std::function<void()> callback, std::optional<InputActionArgs> args)
+void InputSubsystem::register_callback(InputAction const& input_action, InputCallback_Action callback, std::optional<InputActionArgs> args)
 {
-    // auto& action_vector = [=](InputAction::ETriggerCondition trigger) -> std::vector<InputActionCallback>&
-    // {
-    //     static std::vector<InputActionCallback> error_vec{};
-    //     switch (trigger)
-    //     {
-    //     case InputAction::ETriggerCondition::FireOnPress:
-    //         return m_trigger_on_press_actions;
-    //     case InputAction::ETriggerCondition::FireOnRelease:
-    //         return m_trigger_on_release_actions;
-    //     case InputAction::ETriggerCondition::FireAfterDuration:
-    //         return m_trigger_on_held_actions;
-    //     default:
-    //         printf("InputSubsystem::register_callback: unrecognized InputAction trigger condition: %d\n", static_cast<std::uint8_t>(trigger));
-    //         return error_vec;
-    //     }
-    // }(input_action.get_trigger());
-
     // Construct default args if args aren't present
     InputActionArgs action_args = args.value_or(
         InputActionArgs{
@@ -32,30 +15,48 @@ void InputSubsystem::register_callback(InputAction const& input_action, std::fun
         }
     );
 
-    auto [it, insert] = m_keys_we_care_about.emplace(input_action.get_key_code());
-    if (insert)
+    // Register all keys this action cares about
+    for (auto const& key : input_action.get_bound_keys())
     {
-        m_recalculate_cache = true;
+        auto [it, inserted] = m_keys_we_care_about.emplace(key);
+        if (inserted)
+        {
+            m_recalculate_cache = true;
+        }
     }
-    // action_vector.push_back({input_action, std::move(callback), action_args});
 
-    // Eventually this should be inserting the InputActionCallback into the right place according to
-    // the priority stored in action_args
-    m_callbacks[input_action.get_key_code()].push_back({
-        .input_action = input_action,
+    // Add unified binding
+    m_bindings.push_back({
+        .binding = input_action,
         .callback = std::move(callback),
         .args = action_args,
+        .triggered = false,
     });
 }
 
-void InputSubsystem::register_callback(const InputAxis &input_axis, InputCallback_Axis callback)
+//--------------------------------------------------------------------------------------------------
+void InputSubsystem::register_callback(InputAxis const& input_axis, InputCallback_Axis callback)
 {
-    m_axis_callbacks.push_back({
-        .input_axis = input_axis,
-        .callback = std::move(callback)
+    // Register all keys this axis cares about
+    for (auto const& key : input_axis.get_bound_keys())
+    {
+        auto [it, inserted] = m_keys_we_care_about.emplace(key);
+        if (inserted)
+        {
+            m_recalculate_cache = true;
+        }
+    }
+
+    // Add unified binding
+    m_bindings.push_back({
+        .binding = input_axis,
+        .callback = std::move(callback),
+        .args = std::nullopt,
+        .triggered = false,
     });
 }
 
+//--------------------------------------------------------------------------------------------------
 void InputSubsystem::update_cached_keyboard_map()
 {
     for (auto const& key_code : m_keys_we_care_about)
@@ -81,18 +82,18 @@ void InputSubsystem::update_keyboard_state(bool const* states, std::uint64_t cur
         m_recalculate_cache = false;
     }
 
-    for (auto const& key_code : m_keys_we_care_about)
+    for (auto const &key_code: m_keys_we_care_about)
     {
         // Get the state of this key. Update this key's state in the keyboard map as follows:
         // * If states[key_code] == true, m_keyboard_state[key_code].key_state transitions with:
-        //      - Depressed -> Pressed, pressed_frame = SDL_GetTicks()
+        //      - Depressed -> Pressed, pressed_frame = current_frame
         //      - Pressed -> Held
-        //      - Held -> current_frame = SDL_GetTicks()
+        //      - Held -> current_frame = current_frame
         // * If states[key_code] == false, m_keyboard_state[key_code].key_state transitions with:
         //      - Pressed, Held -> Released
         //      - Released -> Depressed, pressed_frame = 0, current_frame = 0
 
-        KeyState& key_state = m_keyboard_state[key_code];
+        KeyState &key_state = m_keyboard_state[key_code];
         if (states[key_code])
         {
             switch (key_state.key_state)
@@ -126,11 +127,18 @@ void InputSubsystem::update_keyboard_state(bool const* states, std::uint64_t cur
                     key_state.current_frame = current_frame;
                     break;
                 case EKeyState::Released:
-                    // Reset key state
+                    // Reset key state and triggered flags for all bindings on this key
                     key_state = KeyState{};
-                    for (auto& input_action_callback : m_callbacks[key_code])
+                    for (auto &binding_callback: m_bindings)
                     {
-                        input_action_callback.triggered = false;
+                        if (binding_callback.is_action())
+                        {
+                            auto const &action = std::get<InputAction>(binding_callback.binding);
+                            if (action.get_key_code() == key_code)
+                            {
+                                binding_callback.triggered = false;
+                            }
+                        }
                     }
                     break;
                 case EKeyState::Depressed:
@@ -139,6 +147,42 @@ void InputSubsystem::update_keyboard_state(bool const* states, std::uint64_t cur
                     break;
             }
         }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+void InputSubsystem::process_bindings(bool const* states)
+{
+    for (auto &binding_callback: m_bindings)
+    {
+        std::visit([&](auto &binding) {
+            using T = std::decay_t<decltype(binding)>;
+
+            if constexpr (std::is_same_v<T, InputAction>)
+            {
+                // Process InputAction
+                SDL_Scancode key = binding.get_key_code();
+                KeyState const &key_state = m_keyboard_state[key];
+
+                bool repeat = binding_callback.args.has_value() && binding_callback.args->repeat_after_initial_trigger;
+
+                if (binding.is_triggered(key_state, binding_callback.triggered, repeat))
+                {
+                    binding_callback.triggered = true;
+                    std::get<InputCallback_Action>(binding_callback.callback)();
+                }
+            }
+            else if constexpr (std::is_same_v<T, InputAxis>)
+            {
+                // Process InputAxis - uses raw bool states directly
+                if (binding.update_axis(states))
+                {
+                    AxisState axis_state{binding.get_internal_state()};
+                    std::get<InputCallback_Axis>(binding_callback.callback)(axis_state);
+                }
+            }
+        }, binding_callback.binding);
     }
 }
 
@@ -159,36 +203,10 @@ bool InputSubsystem::test()
     std::uint64_t current_frame = get_current_time();
 
     update_keyboard_state(states, current_frame);
-    call_event_callbacks();
-
-    for (auto& input_axis_callback : m_axis_callbacks)
-    {
-        if (input_axis_callback.input_axis.update_axis(states))
-        {
-            input_axis_callback.callback(input_axis_callback.input_axis.get_internal_state());
-        }
-    }
+    process_bindings(states);
 
     return true;
 }
 
-void InputSubsystem::call_event_callbacks()
-{
-    for (auto const &key_code: m_keys_we_care_about)
-    {
-        for (auto &input_action_callback: m_callbacks[key_code])
-        {
-            if (is_action_triggered(m_keyboard_state[key_code], input_action_callback))
-            {
-                input_action_callback.triggered = true;
-                input_action_callback.callback();
-//                if (input_action_callback.args.input_consume_state == EInputProcessedState::ConsumeInput)
-//                {
-//                    break;
-//                }
-            }
-        }
-    }
-}
 
 } // namespace AuroraEngine
