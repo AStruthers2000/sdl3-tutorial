@@ -28,6 +28,8 @@ public:
 
     InputSubsystem& get_input_subsystem() { return m_input_subsystem; }
 
+    static AuroraEngine& get();
+
 private:
     bool process_input();
     void update(float delta_time);

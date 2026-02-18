@@ -6,6 +6,8 @@
 namespace AuroraEngine
 {
 
+static AuroraEngine* s_engine = nullptr;
+
 //--------------------------------------------------------------------------------------------------
 AuroraEngine::AuroraEngine(glm::vec2 window_size, glm::vec2 logical_size, std::string_view window_title)
     : m_window_title(window_title)
@@ -20,13 +22,13 @@ AuroraEngine::AuroraEngine(glm::vec2 window_size, glm::vec2 logical_size, std::s
 
     m_sdl_state.window_size = window_size;
     m_sdl_state.logical_size = logical_size;
+
+    s_engine = this;
 }
 
 //--------------------------------------------------------------------------------------------------
 AuroraEngine::~AuroraEngine()
 {
-    m_managed_world->cleanup();
-    m_managed_world.reset();
     cleanup();
 }
 
@@ -124,6 +126,12 @@ void AuroraEngine::run()
     }
 }
 
+AuroraEngine &AuroraEngine::get()
+{
+    assert(s_engine);
+    return *s_engine;
+}
+
 //--------------------------------------------------------------------------------------------------
 bool AuroraEngine::process_input()
 {
@@ -185,6 +193,7 @@ void AuroraEngine::render()
 void AuroraEngine::cleanup()
 {
     m_managed_world->cleanup();
+    m_managed_world.reset();
 
     // Destroy renderer before destroying window
     if (m_sdl_state.renderer)

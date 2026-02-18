@@ -20,7 +20,8 @@
 namespace AuroraEngine
 {
 
-using InputCallback = std::function<void()>;
+using InputCallback_Action = std::function<void()>;
+using InputCallback_Axis = std::function<void(glm::vec4)>;
 
 constexpr std::uint8_t DEFAULT_CALLBACK_PRIORITY = 100U;
 
@@ -30,7 +31,8 @@ public:
     InputSubsystem() = default;
     ~InputSubsystem() = default;
 
-    void register_callback(InputAction const& input_action, InputCallback callback, std::optional<InputActionArgs> args = std::nullopt);
+    void register_callback(InputAction const& input_action, InputCallback_Action callback, std::optional<InputActionArgs> args = std::nullopt);
+    void register_callback(InputAxis const& input_axis, InputCallback_Axis callback);
 
     bool test();
 
@@ -38,7 +40,7 @@ private:
     struct InputActionCallback
     {
         InputAction input_action;
-        InputCallback callback;
+        InputCallback_Action callback;
         InputActionArgs args;
         bool triggered = false;
     };
@@ -124,14 +126,22 @@ private:
         return triggered;
     }
 
+    struct InputAxisCallback
+    {
+        InputAxis input_axis;
+        InputCallback_Axis  callback;
+//        InputAxisArgs args;
+    };
+
     void update_cached_keyboard_map();
-    void update_keyboard_state();
+    void update_keyboard_state(bool const* states, std::uint64_t current_frame);
+    void call_event_callbacks();
 
     std::set<SDL_Scancode> m_keys_we_care_about{};
     std::unordered_map<SDL_Scancode, KeyState> m_keyboard_state{};
     std::unordered_map<SDL_Scancode, std::vector<InputActionCallback>> m_callbacks{};
+    std::vector<InputAxisCallback> m_axis_callbacks{};
     bool m_recalculate_cache = false;
-    void call_event_callbacks();
 };
 
 } // namespace AuroraEngine

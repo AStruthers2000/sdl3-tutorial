@@ -92,6 +92,38 @@ struct InputActionArgs
     bool repeat_after_initial_trigger;
 };
 
+class InputAxis
+{
+public:
+    struct Axis
+    {
+        SDL_Scancode positive;
+        SDL_Scancode negative;
+    };
+
+    explicit InputAxis(Axis const& x_axis, std::optional<Axis> y_axis = std::nullopt)
+    {
+        m_axes[0] = x_axis;
+        m_axes[1] = y_axis.value_or(Axis{SDL_Scancode::SDL_SCANCODE_UNKNOWN, SDL_Scancode::SDL_SCANCODE_UNKNOWN});
+    }
+
+    bool update_axis(bool const* keyboard_state)
+    {
+        m_axis_state[0] = keyboard_state[m_axes[0].positive];
+        m_axis_state[1] = keyboard_state[m_axes[0].negative];
+        m_axis_state[2] = keyboard_state[m_axes[1].positive];
+        m_axis_state[3] = keyboard_state[m_axes[1].negative];
+
+        return m_axis_state != glm::vec4{0, 0, 0, 0};
+    }
+
+    glm::vec4 const& get_internal_state() const { return m_axis_state; }
+
+private:
+    Axis m_axes[2];
+    glm::vec4 m_axis_state{};
+};
+
 } // namespace AuroraEngine
 
 #endif // ENGINE_ENGINE_TYPES_H

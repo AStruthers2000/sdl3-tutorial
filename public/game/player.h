@@ -36,6 +36,7 @@ private:
 
     int direction = 0;
     float speed = 100.f;
+    glm::vec2 move_vec{0, 0};
 };
 
 } // namespace TestGame

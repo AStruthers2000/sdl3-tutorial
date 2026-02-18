@@ -32,7 +32,10 @@ void GameWorld::cleanup()
 {
     for (auto& [_, game_object] : m_game_objects)
     {
-        game_object->cleanup();
+        if (game_object)
+        {
+            game_object->cleanup();
+        }
     }
 }
 

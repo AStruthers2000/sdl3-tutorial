@@ -48,6 +48,14 @@ void InputSubsystem::register_callback(InputAction const& input_action, std::fun
     });
 }
 
+void InputSubsystem::register_callback(const InputAxis &input_axis, InputCallback_Axis callback)
+{
+    m_axis_callbacks.push_back({
+        .input_axis = input_axis,
+        .callback = std::move(callback)
+    });
+}
+
 void InputSubsystem::update_cached_keyboard_map()
 {
     for (auto const& key_code : m_keys_we_care_about)
@@ -65,7 +73,7 @@ void InputSubsystem::update_cached_keyboard_map()
 }
 
 //--------------------------------------------------------------------------------------------------
-void InputSubsystem::update_keyboard_state()
+void InputSubsystem::update_keyboard_state(bool const* states, std::uint64_t current_frame)
 {
     if (m_recalculate_cache)
     {
@@ -73,8 +81,6 @@ void InputSubsystem::update_keyboard_state()
         m_recalculate_cache = false;
     }
 
-    bool const* states = SDL_GetKeyboardState(nullptr);
-    std::uint64_t current_frame = get_current_time();
     for (auto const& key_code : m_keys_we_care_about)
     {
         // Get the state of this key. Update this key's state in the keyboard map as follows:
@@ -149,8 +155,19 @@ bool InputSubsystem::test()
         }
     }
 
-    update_keyboard_state();
+    bool const* states = SDL_GetKeyboardState(nullptr);
+    std::uint64_t current_frame = get_current_time();
+
+    update_keyboard_state(states, current_frame);
     call_event_callbacks();
+
+    for (auto& input_axis_callback : m_axis_callbacks)
+    {
+        if (input_axis_callback.input_axis.update_axis(states))
+        {
+            input_axis_callback.callback(input_axis_callback.input_axis.get_internal_state());
+        }
+    }
 
     return true;
 }
