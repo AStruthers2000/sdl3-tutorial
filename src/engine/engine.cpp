@@ -1,5 +1,6 @@
 #include "engine/engine.h"
 
+#include "engine/time_keeper.h"
 #include "engine/world.h"
 
 namespace AuroraEngine
@@ -94,15 +95,30 @@ void AuroraEngine::run()
     bool running = true;
 
     // Using a variable time step method
-    std::uint64_t previous_frame_time = SDL_GetTicks();
+    // constexpr std::uint64_t target_frame_time = static_cast<std::uint64_t>((1.f / 144.f) * 1E+9);
+    std::uint64_t previous_frame_time = get_current_time();
     while (running)
     {
-        std::uint64_t frame_start_time = SDL_GetTicks();
-        float delta_time = static_cast<float>(frame_start_time - previous_frame_time) / 1'000.f;
+        std::uint64_t frame_start_time = get_current_time();
+        // float delta_time = static_cast<float>(frame_start_time - previous_frame_time) / 1E+09;
+        float delta_time = time_delta<TIME_UNITS>(previous_frame_time, frame_start_time);
 
         running = process_input();
         update(delta_time);
         render();
+
+        // std::uint64_t frame_end_time = get_current_time();
+        // // float frame_time = static_cast<float>(frame_end_time - frame_start_time) / 1'000.f;
+        // // float frame_sleep_time = target_frame_time - frame_time;
+        // std::int64_t frame_sleep_ns = static_cast<std::int64_t>(target_frame_time - (frame_end_time - frame_start_time));
+        // if (frame_sleep_ns > 0)
+        // {
+        //     SDL_DelayPrecise(frame_sleep_ns);
+        // }
+        // else
+        // {
+        //     printf("Frame longer than target\n");
+        // }
 
         previous_frame_time = frame_start_time;
     }
@@ -111,43 +127,44 @@ void AuroraEngine::run()
 //--------------------------------------------------------------------------------------------------
 bool AuroraEngine::process_input()
 {
-    SDL_Event event{ 0 };
-    while (SDL_PollEvent(&event))
-    {
-        EKeyPressedState key_pressed_state = EKeyPressedState::NONE;
-        switch (event.type)
-        {
-            case SDL_EventType::SDL_EVENT_QUIT:
-                return false;
-            case SDL_EventType::SDL_EVENT_WINDOW_RESIZED:
-                m_sdl_state.window_size.x = event.window.data1;
-                m_sdl_state.window_size.y = event.window.data2;
-                break;
-            case SDL_EventType::SDL_EVENT_KEY_UP:
-                key_pressed_state = EKeyPressedState::KEY_UP;
-                break;
-            case SDL_EventType::SDL_EVENT_KEY_DOWN:
-                key_pressed_state = EKeyPressedState::KEY_DOWN;
-                break;
-        }
+    // SDL_Event event{ 0 };
+    // while (SDL_PollEvent(&event))
+    // {
+    //     EKeyPressedState key_pressed_state = EKeyPressedState::NONE;
+    //     switch (event.type)
+    //     {
+    //         case SDL_EventType::SDL_EVENT_QUIT:
+    //             return false;
+    //         case SDL_EventType::SDL_EVENT_WINDOW_RESIZED:
+    //             m_sdl_state.window_size.x = event.window.data1;
+    //             m_sdl_state.window_size.y = event.window.data2;
+    //             break;
+    //         case SDL_EventType::SDL_EVENT_KEY_UP:
+    //             key_pressed_state = EKeyPressedState::KEY_UP;
+    //             break;
+    //         case SDL_EventType::SDL_EVENT_KEY_DOWN:
+    //             key_pressed_state = EKeyPressedState::KEY_DOWN;
+    //             break;
+    //     }
 
-        if (key_pressed_state != EKeyPressedState::NONE)
-        {
-            SDL_Scancode code = event.key.scancode;
-            KeyPress key_press{
-                .key_state = key_pressed_state,
-                .key_code = code,
-            };
-            m_input_subsystem.handle_event(key_press);
-        }
-    }
-
-    return true;
+    //     if (key_pressed_state != EKeyPressedState::NONE)
+    //     {
+    //         SDL_Scancode code = event.key.scancode;
+    //         KeyPress key_press{
+    //             .key_state = key_pressed_state,
+    //             .key_code = code,
+    //         };
+    //         m_input_subsystem.handle_event(key_press);
+    //     }
+    // }
+    
+    return m_input_subsystem.test();
 }
 
 //--------------------------------------------------------------------------------------------------
 void AuroraEngine::update(float delta_time)
 {
+    // printf("Tick started\n");
     m_managed_world->update(delta_time);
 }
 

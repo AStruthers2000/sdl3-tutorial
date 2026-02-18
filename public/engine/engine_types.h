@@ -10,6 +10,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
+#include <limits>
+#include <optional>
 #include <string>
 #include <type_traits>
 
@@ -24,56 +26,72 @@ struct SDLState
     glm::vec2 logical_size{};
 };
 
-struct InputValue
+class InputAction
 {
+public:
+    enum class ETriggerCondition
+    {
+        None,
+        FireOnPress,
+        FireOnRelease,
+        FireAfterDuration,
+    };
 
+    InputAction(SDL_Scancode key_code, bool fire_when_key_is_pressed)
+        : m_key_code(key_code)
+        , m_fire_when_key_pressed(fire_when_key_is_pressed)
+    {
+        if (m_key_code != SDL_Scancode::SDL_SCANCODE_UNKNOWN)
+        {
+            m_trigger = m_fire_when_key_pressed ? ETriggerCondition::FireOnPress : ETriggerCondition::FireOnRelease;
+        }
+    }
+
+    InputAction(SDL_Scancode key_code, float fire_after_duration)
+        : m_key_code(key_code)
+        , m_held_duration(fire_after_duration)
+    {
+        if (m_key_code != SDL_Scancode::SDL_SCANCODE_UNKNOWN)
+        {
+            m_trigger = ETriggerCondition::FireAfterDuration;
+        }
+    }
+
+    ETriggerCondition get_trigger() const
+    {
+        return m_trigger;
+    }
+
+    SDL_Scancode get_key_code() const
+    {
+        return m_key_code;
+    }
+
+    float get_held_duration() const
+    {
+        return m_held_duration;
+    }
+
+private:
+    ETriggerCondition m_trigger = ETriggerCondition::None;
+    SDL_Scancode m_key_code = SDL_Scancode::SDL_SCANCODE_UNKNOWN;
+    bool m_fire_when_key_pressed = true;
+    float m_held_duration = -1.f;
 };
 
-enum class EKeyPressedState
+enum class EInputProcessedState
 {
-    NONE,
-    KEY_DOWN,
-    KEY_UP,
+    ConsumeInput,
+    DoNotConsumeInput,
 };
 
-struct KeyPress
+struct InputActionArgs
 {
-    EKeyPressedState key_state;
-    SDL_Scancode key_code;
+    EInputProcessedState input_consume_state;
+    std::uint8_t callback_priority;
+    bool repeat_after_initial_trigger;
 };
-
-// Equality operator for KeyPress
-inline bool operator==(const KeyPress& lhs, const KeyPress& rhs)
-{
-    return lhs.key_state == rhs.key_state && lhs.key_code == rhs.key_code;
-}
-
-// Less-than operator for ordered containers (std::map, std::set)
-inline bool operator<(const KeyPress& lhs, const KeyPress& rhs)
-{
-    if (lhs.key_state != rhs.key_state)
-        return static_cast<int>(lhs.key_state) < static_cast<int>(rhs.key_state);
-    return lhs.key_code < rhs.key_code;
-}
 
 } // namespace AuroraEngine
-
-// Hash specialization for std::unordered_map
-namespace std
-{
-template <>
-struct hash<AuroraEngine::KeyPress>
-{
-    size_t operator()(const AuroraEngine::KeyPress& key) const
-    {
-        // Combine hashes using FNV-1a inspired approach for good distribution
-        size_t h1 = std::hash<int>()(static_cast<int>(key.key_state));
-        size_t h2 = std::hash<SDL_Scancode>()(key.key_code);
-        
-        // FNV-1a-like combining
-        return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
-    }
-};
-} // namespace std
 
 #endif // ENGINE_ENGINE_TYPES_H

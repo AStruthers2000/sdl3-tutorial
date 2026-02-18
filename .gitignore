@@ -88,3 +88,6 @@ CMakeUserPresets.json
 # Package managers
 *.tgz
 *.tar.gz
+
+# Conan
+conan_provider.cmake
