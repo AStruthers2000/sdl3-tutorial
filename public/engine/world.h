@@ -6,8 +6,6 @@
 #ifndef ENGINE_GAMEWORLD_H
 #define ENGINE_GAMEWORLD_H
 
-#include "engine/engine_types.h"
-
 #include <SDL3/SDL.h>
 
 #include <list>

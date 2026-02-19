@@ -1,26 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Copyright (C) 2026 AStruthers2000 - All Rights Reserved
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Common type definitions for the Aurora Engine.
+///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifndef ENGINE_ENGINE_TYPES_H
-#define ENGINE_ENGINE_TYPES_H
+#ifndef AURORA_ENGINE_PUBLIC_H
+#define AURORA_ENGINE_PUBLIC_H
 
-#include <glm/glm.hpp>
+#include "engine/engine.h"
+#include "engine/game_object.h"
+#include "engine/time_keeper.h"
+#include "engine/window.h"
+#include "engine/world.h"
+
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-namespace AuroraEngine
-{
-
-//struct SDLState
-//{
-//    SDL_Window* window = nullptr;
-//    SDL_Renderer* renderer = nullptr;
-//    glm::vec2 window_size{};
-//    glm::vec2 logical_size{};
-//};
-
-} // namespace AuroraEngine
-
-#endif // ENGINE_ENGINE_TYPES_H
+#endif // AURORA_ENGINE_PUBLIC_H

@@ -6,7 +6,6 @@
 #ifndef ENGINE_ENGINE_H
 #define ENGINE_ENGINE_H
 
-#include "engine/engine_types.h"
 #include "engine/window.h"
 #include "engine/subsystems/input/input_subsystem.h"
 

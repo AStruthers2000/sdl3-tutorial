@@ -6,9 +6,6 @@
 #ifndef ENGINE_GAME_OBJECT_H
 #define ENGINE_GAME_OBJECT_H
 
-// #include "engine/animation.h"
-// #include "engine/engine.h"
-#include "engine/engine_types.h"
 #include "engine/world.h"
 #include "engine/components/transform_component.h"
 

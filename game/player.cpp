@@ -1,5 +1,6 @@
-#include "game/player.h"
-#include "engine/engine.h"
+#include "player.h"
+
+#include <print>
 
 namespace TestGame
 {
@@ -8,10 +9,15 @@ namespace TestGame
 void Player::initialize()
 {
     SDL_Renderer* renderer = AuroraEngine::Engine::get().get_window().get_sdl_renderer();
-    m_texture = IMG_LoadTexture(renderer, "data/GraveRobber_idle.png");
+    m_texture = IMG_LoadTexture(renderer, "game/data/GraveRobber_idle.png");
     if (m_texture)
     {
+        std::println("Successfully loaded player texture");
         SDL_SetTextureScaleMode(m_texture, SDL_ScaleMode::SDL_SCALEMODE_NEAREST);
+    }
+    else
+    {
+        std::println("Failed to load player texture: {}", SDL_GetError());
     }
 
     // get_world().get_engine().get_input_subsystem().register_callback(

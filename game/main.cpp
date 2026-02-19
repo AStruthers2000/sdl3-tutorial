@@ -1,7 +1,4 @@
-#include "engine/engine.h"
-#include "engine/world.h"
-
-#include "game/player.h"
+#include "player.h"
 
 using namespace AuroraEngine;
 
