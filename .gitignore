@@ -158,8 +158,7 @@ Testing/
 # Jetbrains IDEs
 .idea/
 
-# Conan
-conan_provider.cmake
+# CMake Presets
 CMakeUserPresets.json
 
 # Notes
