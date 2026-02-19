@@ -17,7 +17,7 @@ class AuroraEngineConan(ConanFile):
 
     def requirements(self):
         # GLM math library
-        self.requires("glm/1.0.1")
+        self.requires("glm/1.0.1", transitive_headers=True)
         # SDL3 for graphics and window management
         self.requires("sdl/3.4.0")
         self.requires("sdl_image/3.4.0")
@@ -53,5 +53,6 @@ class AuroraEngineConan(ConanFile):
         self.cpp_info.includedirs = ["include"]
 
         # Propagate dependencies to consumers
-        self.cpp_info.requires = ["glm::glm", "sdl::SDL3", "sdl_image::SDL3_image"]
-
+        self.cpp_info.requires = ["glm::glm", "sdl::sdl", "sdl_image::sdl_image"]
+        self.cpp_info.set_property("cmake_target_name", "aurora-engine::aurora-engine")
+        self.cpp_info.set_property("cmake_file_name", "aurora-engine")
