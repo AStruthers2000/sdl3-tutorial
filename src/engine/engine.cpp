@@ -6,11 +6,11 @@
 namespace AuroraEngine
 {
 
-static AuroraEngine* s_engine = nullptr;
+static Engine* s_engine = nullptr;
 
 //--------------------------------------------------------------------------------------------------
-AuroraEngine::AuroraEngine(glm::vec2 window_size, glm::vec2 logical_size, std::string_view window_title)
-    : m_window_title(window_title)
+Engine::Engine(WindowSpecification const& window_spec)
+    : m_window(std::make_unique<Window>(window_spec))
 {
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
@@ -20,20 +20,24 @@ AuroraEngine::AuroraEngine(glm::vec2 window_size, glm::vec2 logical_size, std::s
                                  nullptr);
     }
 
-    m_sdl_state.window_size = window_size;
-    m_sdl_state.logical_size = logical_size;
-
     s_engine = this;
 }
 
 //--------------------------------------------------------------------------------------------------
-AuroraEngine::~AuroraEngine()
+Engine::~Engine()
 {
-    cleanup();
+    m_managed_world->cleanup();
+    m_managed_world.reset();
+
+    m_window->destroy();
+    m_window.reset();
+
+    // Quit SDL
+    SDL_Quit();
 }
 
 //--------------------------------------------------------------------------------------------------
-void AuroraEngine::initialize(std::unique_ptr<GameWorld> managed_world)
+void Engine::initialize(std::unique_ptr<GameWorld> managed_world)
 {
     if (managed_world == nullptr)
     {
@@ -44,51 +48,23 @@ void AuroraEngine::initialize(std::unique_ptr<GameWorld> managed_world)
         return;
     }
 
+    m_window->create();
+
+    // Take ownership of world and initialize it with the SDL state
     m_managed_world = std::move(managed_world);
-
-    // Create the SDL window
-    m_sdl_state.window = SDL_CreateWindow(m_window_title.data(),
-                                          m_sdl_state.window_size.x,
-                                          m_sdl_state.window_size.y,
-                                          SDL_WINDOW_RESIZABLE);
-    if (!m_sdl_state.window)
-    {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-                                 "Error",
-                                 "Failed to create window!",
-                                 nullptr);
-        return;
-    }
-
-    // Create the SDL renderer
-    m_sdl_state.renderer = SDL_CreateRenderer(m_sdl_state.window, nullptr);
-    if (!m_sdl_state.renderer)
-    {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-                                 "Error",
-                                 "Failed to create renderer!",
-                                 nullptr);
-        return;
-    }
-
-    SDL_SetRenderLogicalPresentation(m_sdl_state.renderer,
-                                     m_sdl_state.logical_size.x,
-                                     m_sdl_state.logical_size.y,
-                                     SDL_RendererLogicalPresentation::SDL_LOGICAL_PRESENTATION_LETTERBOX);
-
-    m_managed_world->initialize(m_sdl_state);
+    m_managed_world->initialize();
     
     m_initialized = true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void AuroraEngine::run()
+void Engine::run()
 {
     if (!m_initialized)
     {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                                  "Error",
-                                 "Can't run AuroraEngine; must call initialize() first",
+                                 "Can't run Engine; must call initialize() first",
                                  nullptr);
         return;
     }
@@ -126,91 +102,37 @@ void AuroraEngine::run()
     }
 }
 
-AuroraEngine &AuroraEngine::get()
+Engine &Engine::get()
 {
     assert(s_engine);
     return *s_engine;
 }
 
 //--------------------------------------------------------------------------------------------------
-bool AuroraEngine::process_input()
+bool Engine::process_input()
 {
-    // SDL_Event event{ 0 };
-    // while (SDL_PollEvent(&event))
-    // {
-    //     EKeyPressedState key_pressed_state = EKeyPressedState::NONE;
-    //     switch (event.type)
-    //     {
-    //         case SDL_EventType::SDL_EVENT_QUIT:
-    //             return false;
-    //         case SDL_EventType::SDL_EVENT_WINDOW_RESIZED:
-    //             m_sdl_state.window_size.x = event.window.data1;
-    //             m_sdl_state.window_size.y = event.window.data2;
-    //             break;
-    //         case SDL_EventType::SDL_EVENT_KEY_UP:
-    //             key_pressed_state = EKeyPressedState::KEY_UP;
-    //             break;
-    //         case SDL_EventType::SDL_EVENT_KEY_DOWN:
-    //             key_pressed_state = EKeyPressedState::KEY_DOWN;
-    //             break;
-    //     }
-
-    //     if (key_pressed_state != EKeyPressedState::NONE)
-    //     {
-    //         SDL_Scancode code = event.key.scancode;
-    //         KeyPress key_press{
-    //             .key_state = key_pressed_state,
-    //             .key_code = code,
-    //         };
-    //         m_input_subsystem.handle_event(key_press);
-    //     }
-    // }
-    
     return m_input_subsystem.test();
 }
 
 //--------------------------------------------------------------------------------------------------
-void AuroraEngine::update(float delta_time)
+void Engine::update(float delta_time)
 {
-    // printf("Tick started\n");
     m_managed_world->update(delta_time);
 }
 
 //--------------------------------------------------------------------------------------------------
-void AuroraEngine::render()
+void Engine::render()
 {
-    SDL_SetRenderDrawColor(m_sdl_state.renderer, 20, 10, 30, 255);
-    SDL_RenderClear(m_sdl_state.renderer);
+    // Eventually refactor this to have the window handle rendering entirely
+    SDL_Renderer* renderer = m_window->get_sdl_renderer();
+    SDL_SetRenderDrawColor(renderer, 20, 10, 30, 255);
+    SDL_RenderClear(renderer);
 
     // Perform all rendering
-    m_managed_world->render(m_sdl_state.renderer);
+    m_managed_world->render(renderer);
 
     // Swap buffers and present
-    SDL_RenderPresent(m_sdl_state.renderer);
-}
-
-//--------------------------------------------------------------------------------------------------
-void AuroraEngine::cleanup()
-{
-    m_managed_world->cleanup();
-    m_managed_world.reset();
-
-    // Destroy renderer before destroying window
-    if (m_sdl_state.renderer)
-    {
-        SDL_DestroyRenderer(m_sdl_state.renderer);
-        m_sdl_state.renderer = nullptr;
-    }
-
-    // Destroy window
-    if (m_sdl_state.window)
-    {
-        SDL_DestroyWindow(m_sdl_state.window);
-        m_sdl_state.window = nullptr;
-    }
-
-    // Quit SDL
-    SDL_Quit();
+    SDL_RenderPresent(renderer);
 }
 
 } // namespace AuroraEngine

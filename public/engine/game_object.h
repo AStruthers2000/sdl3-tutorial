@@ -36,7 +36,7 @@ public:
 
     virtual ~GameObject() = default;
 
-    virtual void initialize(SDLState const& sdl_state) = 0;
+    virtual void initialize() = 0;
     virtual void update(float delta_time) = 0;
     virtual void render(SDL_Renderer* renderer) = 0;
     virtual void cleanup() = 0;

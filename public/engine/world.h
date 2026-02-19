@@ -17,26 +17,26 @@
 namespace AuroraEngine
 {
 
-class AuroraEngine;
+class Engine;
 class GameObject;
 
 class GameWorld
 {
 public:
-    GameWorld(AuroraEngine& owning_engine);
+    GameWorld(Engine& owning_engine);
     ~GameWorld();
 
-    void initialize(SDLState const& sdl_state);
+    void initialize();
     void cleanup();
 
-    AuroraEngine& get_engine() { return m_engine; }
+    Engine& get_engine() { return m_engine; }
     bool add_object(std::unique_ptr<GameObject> object, int update_order);
 
     void update(float delta_time);
     void render(SDL_Renderer* renderer);
 
 private:
-    AuroraEngine& m_engine;
+    Engine& m_engine;
 
     std::list<std::pair<int, std::unique_ptr<GameObject>>> m_game_objects;
 };

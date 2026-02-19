@@ -18,6 +18,7 @@ add_library(sdl3_engine
   ${PROJECT_SOURCE_DIR}/src/engine/game_object.cpp
   # ${PROJECT_SOURCE_DIR}/src/engine/main_app.cpp
   # ${PROJECT_SOURCE_DIR}/src/engine/timer.cpp
+  ${PROJECT_SOURCE_DIR}/src/engine/window.cpp
   ${PROJECT_SOURCE_DIR}/src/engine/world.cpp
 
   ${PROJECT_SOURCE_DIR}/src/engine/subsystems/input_subsystem.cpp

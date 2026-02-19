@@ -1,109 +1,94 @@
 #include "game/player.h"
 #include "engine/engine.h"
 
-int clamped_add(int x, int y, int low, int high)
-{
-    int z = x + y;
-    if (z < low)
-    {
-        z = low;
-    }
-
-    if (z > high)
-    {
-        z = high;
-    }
-
-    return z;
-}
-
 namespace TestGame
 {
 
 //--------------------------------------------------------------------------------------------------
-void Player::initialize(AuroraEngine::SDLState const& sdl_state)
+void Player::initialize()
 {
-    m_texture = IMG_LoadTexture(sdl_state.renderer, "data/GraveRobber_idle.png");
+    SDL_Renderer* renderer = AuroraEngine::Engine::get().get_window().get_sdl_renderer();
+    m_texture = IMG_LoadTexture(renderer, "data/GraveRobber_idle.png");
     if (m_texture)
     {
         SDL_SetTextureScaleMode(m_texture, SDL_ScaleMode::SDL_SCALEMODE_NEAREST);
     }
 
     // get_world().get_engine().get_input_subsystem().register_callback(
-    //     AuroraEngine::KeyPress{
-    //         .key_state = AuroraEngine::EKeyPressedState::KEY_DOWN,
+    //     Engine::KeyPress{
+    //         .key_state = Engine::EKeyPressedState::KEY_DOWN,
     //         .key_code = SDL_Scancode::SDL_SCANCODE_LEFT
     //     },
-    //     [this](AuroraEngine::InputValue const& value)
+    //     [this](Engine::InputValue const& value)
     //     {
     //         // printf("Player moving left\n");
     //         // this->get_transform().update_position(glm::vec2{-100.f, 0.f});
     //         // printf("Player moving left\n");
     //         this->direction = clamped_add(this->direction, 1, -1, 1);
-    //         return AuroraEngine::EInputProcessedState::ConsumeInput;
+    //         return Engine::EInputProcessedState::ConsumeInput;
     //     }
     // );
 
     // get_world().get_engine().get_input_subsystem().register_callback(
-    //     AuroraEngine::KeyPress{
-    //         .key_state = AuroraEngine::EKeyPressedState::KEY_DOWN,
+    //     Engine::KeyPress{
+    //         .key_state = Engine::EKeyPressedState::KEY_DOWN,
     //         .key_code = SDL_Scancode::SDL_SCANCODE_RIGHT
     //     },
-    //     [this](AuroraEngine::InputValue const& value)
+    //     [this](Engine::InputValue const& value)
     //     {
     //         // printf("Player moving left\n");
     //         // this->get_transform().update_position(glm::vec2{100.f, 0.f});
     //         this->direction = clamped_add(this->direction, -1, -1, 1);
-    //         return AuroraEngine::EInputProcessedState::ConsumeInput;
+    //         return Engine::EInputProcessedState::ConsumeInput;
     //     }
     // );
 
     // get_world().get_engine().get_input_subsystem().register_callback(
-    //     AuroraEngine::KeyPress{
-    //         .key_state = AuroraEngine::EKeyPressedState::KEY_UP,
+    //     Engine::KeyPress{
+    //         .key_state = Engine::EKeyPressedState::KEY_UP,
     //         .key_code = SDL_Scancode::SDL_SCANCODE_LEFT
     //     },
-    //     [this](AuroraEngine::InputValue const& value)
+    //     [this](Engine::InputValue const& value)
     //     {
     //         // printf("Player moving left\n");
     //         // this->get_transform().update_position(glm::vec2{-100.f, 0.f});
     //         // this->direction = clamped_add(this->direction, 1, -1, 1);
     //         this->direction = 0;
-    //         return AuroraEngine::EInputProcessedState::ConsumeInput;
+    //         return Engine::EInputProcessedState::ConsumeInput;
     //     }
     // );
 
     // get_world().get_engine().get_input_subsystem().register_callback(
-    //     AuroraEngine::KeyPress{
-    //         .key_state = AuroraEngine::EKeyPressedState::KEY_UP,
+    //     Engine::KeyPress{
+    //         .key_state = Engine::EKeyPressedState::KEY_UP,
     //         .key_code = SDL_Scancode::SDL_SCANCODE_RIGHT
     //     },
-    //     [this](AuroraEngine::InputValue const& value)
+    //     [this](Engine::InputValue const& value)
     //     {
     //         // printf("Player moving left\n");
     //         // this->get_transform().update_position(glm::vec2{100.f, 0.f});
     //         // this->direction = clamped_add(this->direction, -1, -1, 1);;
     //         this->direction = 0;
-    //         return AuroraEngine::EInputProcessedState::ConsumeInput;
+    //         return Engine::EInputProcessedState::ConsumeInput;
     //     }
     // );
 
 //    get_world().get_engine().get_input_subsystem().register_callback(
-//        AuroraEngine::InputAction(SDL_Scancode::SDL_SCANCODE_A, 1.f),
+//        Engine::InputAction(SDL_Scancode::SDL_SCANCODE_A, 1.f),
 //        [this]()
 //        {
 //            // this->direction = clamped_add(this->direction, -1, -1, 1);
 //            printf("Held A for 1 second\n");
 //            // this->direction -= 1;
 //        },
-//        AuroraEngine::InputActionArgs
+//        Engine::InputActionArgs
 //        {
 //            .repeat_after_initial_trigger = true,
 //        }
 //    );
 //
 //    get_world().get_engine().get_input_subsystem().register_callback(
-//        AuroraEngine::InputAction(SDL_Scancode::SDL_SCANCODE_A, false),
+//        Engine::InputAction(SDL_Scancode::SDL_SCANCODE_A, false),
 //        [this]()
 //        {
 //            // this->direction = clamped_add(this->direction, -1, -1, 1);
@@ -113,7 +98,7 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //    );
 //
 //    get_world().get_engine().get_input_subsystem().register_callback(
-//        AuroraEngine::InputAction(SDL_Scancode::SDL_SCANCODE_W, true),
+//        Engine::InputAction(SDL_Scancode::SDL_SCANCODE_W, true),
 //        [this]()
 //        {
 //            // this->direction = clamped_add(this->direction, 1, -1, 1);
@@ -122,21 +107,21 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //    );
 //
 //    get_world().get_engine().get_input_subsystem().register_callback(
-//        AuroraEngine::InputAction(SDL_Scancode::SDL_SCANCODE_D, 0.5f),
+//        Engine::InputAction(SDL_Scancode::SDL_SCANCODE_D, 0.5f),
 //        [this]()
 //        {
 //            // this->direction = 0;
 //             printf("Held D for 0.5 seconds\n");
 //            this->direction += 1;
 //        },
-//        AuroraEngine::InputActionArgs
+//        Engine::InputActionArgs
 //        {
 //            .repeat_after_initial_trigger = true,
 //        }
 //    );
 //
 //    get_world().get_engine().get_input_subsystem().register_callback(
-//        AuroraEngine::InputAction(SDL_Scancode::SDL_SCANCODE_D, false),
+//        Engine::InputAction(SDL_Scancode::SDL_SCANCODE_D, false),
 //        [this]()
 //        {
 //            // this->direction = 0;
@@ -146,7 +131,7 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //    );
 //
 //    get_world().get_engine().get_input_subsystem().register_callback(
-//        AuroraEngine::InputAction(SDL_Scancode::SDL_SCANCODE_S, false),
+//        Engine::InputAction(SDL_Scancode::SDL_SCANCODE_S, false),
 //        [this]()
 //        {
 //            // this->direction = 0;
@@ -154,7 +139,7 @@ void Player::initialize(AuroraEngine::SDLState const& sdl_state)
 //        }
 //    );
 //    get_world().get_engine().get_input_subsystem().register_callback(
-    AuroraEngine::AuroraEngine::get().get_input_subsystem().register_callback(
+    AuroraEngine::Engine::get().get_input_subsystem().register_callback(
             AuroraEngine::InputAxis(AuroraEngine::InputAxis::Axis{SDL_Scancode::SDL_SCANCODE_D, SDL_Scancode::SDL_SCANCODE_A},
                                     AuroraEngine::InputAxis::Axis{SDL_Scancode::SDL_SCANCODE_W, SDL_Scancode::SDL_SCANCODE_S}),
             [this](AuroraEngine::AxisState const& axis)

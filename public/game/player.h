@@ -26,7 +26,7 @@ public:
         cleanup();
     }
 
-    void initialize(AuroraEngine::SDLState const& sdl_state);
+    void initialize() override;
     void update(float delta_time) override;
     void render(SDL_Renderer* renderer) override;
     void cleanup() override;

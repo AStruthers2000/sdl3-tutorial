@@ -1,4 +1,5 @@
 #include "engine/subsystems/input/input_subsystem.h"
+#include "engine/engine.h"
 
 namespace AuroraEngine
 {
@@ -196,6 +197,9 @@ bool InputSubsystem::test()
         {
             case SDL_EventType::SDL_EVENT_QUIT:
                 return false;
+            case SDL_EventType::SDL_EVENT_WINDOW_RESIZED:
+                Engine::get().get_window().set_size({event.window.data1, event.window.data2});
+                break;
         }
     }
 
@@ -207,6 +211,5 @@ bool InputSubsystem::test()
 
     return true;
 }
-
 
 } // namespace AuroraEngine

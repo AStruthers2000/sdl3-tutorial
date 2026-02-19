@@ -9,7 +9,7 @@ namespace AuroraEngine
 {
 
 //--------------------------------------------------------------------------------------------------
-GameWorld::GameWorld(AuroraEngine& owning_engine)
+GameWorld::GameWorld(Engine& owning_engine)
     : m_engine(owning_engine)
 {
 
@@ -19,11 +19,11 @@ GameWorld::GameWorld(AuroraEngine& owning_engine)
 GameWorld::~GameWorld() = default;
 
 //--------------------------------------------------------------------------------------------------
-void GameWorld::initialize(SDLState const& sdl_state)
+void GameWorld::initialize()
 {
     for (auto& [_, game_object] : m_game_objects)
     {
-        game_object->initialize(sdl_state);
+        game_object->initialize();
     }
 }
 

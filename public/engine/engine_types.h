@@ -13,13 +13,13 @@
 namespace AuroraEngine
 {
 
-struct SDLState
-{
-    SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
-    glm::vec2 window_size{};
-    glm::vec2 logical_size{};
-};
+//struct SDLState
+//{
+//    SDL_Window* window = nullptr;
+//    SDL_Renderer* renderer = nullptr;
+//    glm::vec2 window_size{};
+//    glm::vec2 logical_size{};
+//};
 
 } // namespace AuroraEngine
 

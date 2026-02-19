@@ -7,6 +7,7 @@
 #define ENGINE_ENGINE_H
 
 #include "engine/engine_types.h"
+#include "engine/window.h"
 #include "engine/subsystems/input/input_subsystem.h"
 
 #include <memory>
@@ -17,29 +18,27 @@ namespace AuroraEngine
 
 class GameWorld;
 
-class AuroraEngine
+class Engine
 {
 public:
-    AuroraEngine(glm::vec2 window_size, glm::vec2 logical_size, std::string_view window_title);
-    ~AuroraEngine();
+    explicit Engine(WindowSpecification const& window_spec);
+    ~Engine();
 
     void initialize(std::unique_ptr<GameWorld> managed_world);
     void run();
 
     InputSubsystem& get_input_subsystem() { return m_input_subsystem; }
 
-    static AuroraEngine& get();
+    static Engine& get();
+    [[nodiscard]] Window& get_window() const { return *m_window; }
 
 private:
     bool process_input();
     void update(float delta_time);
     void render();
 
-    void cleanup();
-
-    SDLState m_sdl_state{};
-    std::string_view m_window_title = "";
     bool m_initialized = false;
+    std::unique_ptr<Window> m_window;
     std::unique_ptr<GameWorld> m_managed_world;
     InputSubsystem m_input_subsystem;
 };
